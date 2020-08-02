@@ -1,0 +1,32 @@
+{
+  "name": "web-ts-template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No test specified. Passing bliendly.\"",
+    "build": "npm run test && rm -r dist/rm && rollup -c",
+    "watch": "rollup --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rohittp0/web-ts-template.git"
+  },
+  "author": "Rohit T P",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rohittp0/web-ts-template/issues"
+  },
+  "homepage": "https://github.com/rohittp0/web-ts-template#readme",
+  "devDependencies": {
+    "@babel/core": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
+    "@rollup/plugin-babel": "^5.1.0",
+    "@rollup/plugin-node-resolve": "^8.4.0",
+    "rollup": "^2.23.0",
+    "rollup-plugin-terser": "^6.1.0",
+    "rollup-plugin-typescript2": "^0.27.1",
+    "rollup-plugin-uglify": "^6.0.4",
+    "typescript": "^3.9.7"
+  }
+}
