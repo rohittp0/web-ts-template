@@ -2,11 +2,10 @@ import typescript from "rollup-plugin-typescript2";
 import {terser} from "rollup-plugin-terser";
 import babel from "@rollup/plugin-babel";
 import resolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
 import clean from "rollup-plugin-clean";
 
 const extensions = [".ts",".js"];
-let plugins = [ clean(), typescript(), commonjs({ extensions }), resolve({ extensions}),
+let plugins = [ clean(), typescript(), resolve({ extensions}),
                     babel({ extensions, exclude: "node_modules/**"}, ) ];
 
 if( process.env.PRODUCTION )                    
