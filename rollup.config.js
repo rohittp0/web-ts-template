@@ -1,7 +1,10 @@
-import typescript from 'rollup-plugin-typescript2';
-import {terser} from 'rollup-plugin-terser';
+import typescript from "rollup-plugin-typescript2";
+import {terser} from "rollup-plugin-terser";
 import babel from "@rollup/plugin-babel";
 import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+
+let extensions = [".ts",".js"];
 
 export default [{
     input: [
@@ -9,17 +12,18 @@ export default [{
     ],
     output: {
         dir: "dist/js",
-        format: "es",
+        format: "cjs",
         sourcemap: "inline",
     },
     plugins: [
         typescript(),
-        resolve({ extensions: [".ts"] }),
+        commonjs({ extensions }),
+        resolve({ extensions}),
         babel({
-            extensions: [".ts"],
-            include: ['src/scripts/*'],
+            extensions,
+            include: ["src/scripts/*"],
             exclude: "node_modules/**",
-            babelHelpers: 'bundled'
+            babelHelpers: "bundled"
         }),
         terser()
     ]
