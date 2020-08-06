@@ -1,3 +1,3 @@
 import {something} from "./common";
 
-console.log(something);
+console.log(something,"aaa");

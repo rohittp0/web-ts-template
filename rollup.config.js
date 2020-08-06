@@ -3,8 +3,14 @@ import {terser} from "rollup-plugin-terser";
 import babel from "@rollup/plugin-babel";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import clean from "rollup-plugin-clean";
 
-let extensions = [".ts",".js"];
+const extensions = [".ts",".js"];
+let plugins = [ clean(), typescript(), commonjs({ extensions }), resolve({ extensions}),
+                    babel({ extensions, exclude: "node_modules/**"}, ) ];
+
+if( process.env.PRODUCTION )                    
+        plugins = plugins.concat([ terser() ]);
 
 export default [{
     input: [
@@ -15,16 +21,5 @@ export default [{
         format: "cjs",
         sourcemap: "inline",
     },
-    plugins: [
-        typescript(),
-        commonjs({ extensions }),
-        resolve({ extensions}),
-        babel({
-            extensions,
-            include: ["src/scripts/*"],
-            exclude: "node_modules/**",
-            babelHelpers: "bundled"
-        }),
-        terser()
-    ]
+    plugins
 }];

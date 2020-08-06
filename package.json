@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"No test specified. Passing bliendly.\"",
-    "build-ts": "rm -rf dist/js  && rollup -c",
-    "build-scss": "rm  -rf dist/css && node-sass src/scss/ -o dist/css/ --output-style compressed",
+    "build-ts": "rollup -c --environment PRODUCTION",
+    "build-scss": "node-sass src/scss/ -o dist/css/ --output-style compressed",
     "build": "npm run test && npm run build-ts && npm run build-scss",
-    "watch-ts": "rollup --watch",
+    "watch-ts": "rollup -c --watch",
     "watch-scss": "node-sass -w src/scss/ -o dist/css/ --source-map-embed true"
   },
   "repository": {
@@ -29,6 +29,7 @@
     "@rollup/plugin-node-resolve": "^8.4.0",
     "node-sass": "^4.14.1",
     "rollup": "^2.23.0",
+    "rollup-plugin-clean": "^1.0.0",
     "rollup-plugin-terser": "^6.1.0",
     "rollup-plugin-typescript2": "^0.27.1",
     "rollup-plugin-uglify": "^6.0.4",
