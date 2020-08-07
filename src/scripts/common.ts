@@ -1,1 +1,1 @@
-export const something = "abc";
+export const something = () => "abc";
