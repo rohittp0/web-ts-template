@@ -26,29 +26,22 @@ if( process.env.NODE_ENV === "production" )
     plugins.push(terser());
 }
 
-const plugins_sw = plugins.splice(
-    workboxInjectManifest({
-      globDirectory: BUILD_DIR,
-      globPatterns: [
-        '**\/*.{js,css,html,png}'
-      ],
-    }))
-
-function getConfig(input,dir,plugins)
+function getConfig(input,dir)
 {
-    return {
-        input,
-        output: 
+    const plugins_sw = plugins.splice(
+        workboxInjectManifest({ globDirectory: dir ,globPatterns: [ '**/index.{html,css,js}' ] }));
+
+    return [
         {
-            dir,
-            format: "esm",
-            sourcemap: "inline",
+            input, output: { dir, format: "esm", sourcemap: "inline" }, plugins
         },
-        plugins
-    };
+        {
+            input, output: { dir, format: "esm", sourcemap: "inline" }, plugins_sw
+        }
+    ];
 }
 
 export default 
 [
-    getConfig(["src/index.ts"],"dist/js",plugins)
+    ...getConfig(["src/index.ts"],"dist/js")
 ];
