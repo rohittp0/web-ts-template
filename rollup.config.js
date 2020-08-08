@@ -5,13 +5,17 @@ import cleaner from "rollup-plugin-cleaner";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from '@rollup/plugin-replace';
 import workboxInjectManifest from 'rollup-plugin-workbox-inject';
+import glob from "glob";
+import path from "path";
+
+const SCRIPTS_FOLDER = "scripts";
+const SERVICE_WORKER_NAME = "service-worker.ts"
 
 console.log(`Building for ${process.env.NODE_ENV} environment`)
 
-const extensions = [".ts",".js"];
 const plugins = 
 [ 
-    resolve({ extensions, browser: true }), 
+    resolve({ extensions: [".ts",".js",".node",".json"], browser: true }), 
     replace(
     {
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "production")
@@ -26,22 +30,26 @@ if( process.env.NODE_ENV === "production" )
     plugins.push(terser());
 }
 
-function getConfig(input,dir)
+function getConfig(root,dir)
 {
     const plugins_sw = plugins.splice(
         workboxInjectManifest({ globDirectory: dir ,globPatterns: [ '**/index.{html,css,js}' ] }));
+    const input = glob.sync(`${path.join(root,SCRIPTS_FOLDER)}/*.ts`)
+    const input_sw = path.join(root,SERVICE_WORKER_NAME);
+
+    const watch = { exclude: 'node_modules/**' };
 
     return [
         {
-            input, output: { dir, format: "esm", sourcemap: "inline" }, plugins
+            input, output: { dir, format: "esm", sourcemap: "inline" }, plugins , watch
         },
         {
-            input, output: { dir, format: "esm", sourcemap: "inline" }, plugins_sw
+            input: input_sw, output: { dir, format: "esm", sourcemap: "inline" }, plugins: plugins_sw, watch
         }
     ];
 }
 
 export default 
 [
-    ...getConfig(["src/index.ts"],"dist/js")
+    ...getConfig("src","dist/js")
 ];
