@@ -1,18 +1,18 @@
 import typescript from "rollup-plugin-typescript2";
-import {
-	terser
-} from "rollup-plugin-terser";
+import workbox from "rollup-plugin-workbox-inject";
 import resolve from "@rollup/plugin-node-resolve";
-import cleaner from "rollup-plugin-cleaner";
 import commonjs from "@rollup/plugin-commonjs";
-import replace from '@rollup/plugin-replace';
-import workbox from 'rollup-plugin-workbox-inject';
-import glob from "glob";
-import path from "path";
 import {
 	build_tree,
 	format
 } from "./config";
+import {
+	terser
+} from "rollup-plugin-terser";
+import replace from "@rollup/plugin-replace";
+import cleaner from "rollup-plugin-cleaner";
+import glob from "glob";
+import path from "path";
 
 console.log(`Building for ${process.env.NODE_ENV} environment`)
 
@@ -38,7 +38,7 @@ if (process.env.NODE_ENV === "production")
  */
 const insert = (arr, index, newItem) => [...arr.slice(0, index), newItem, ...arr.slice(index)];
 const watch = {
-	exclude: 'node_modules/**'
+	exclude: "node_modules/**"
 };
 
 /**
@@ -90,11 +90,10 @@ function getTSConfig(root, dir) {
 
 const exportArray = [];
 
-build_tree.forEach(entry => {
-	exportArray.push(getTSConfig(entry.src_ts, entry.dist_js));
-	exportArray.push(getSWConfig(entry.dist_root, entry.precache,
+build_tree.forEach(entry => exportArray.push(
+	getTSConfig(entry.src_ts, entry.dist_js),
+	getSWConfig(entry.dist_root, entry.precache,
 		path.join(entry.src_root, `${entry.sw}.ts`),
-		path.join(entry.dist_root, `${entry.sw}.js`)))
-});
+		path.join(entry.dist_root, `${entry.sw}.js`))));
 
 export default exportArray;
