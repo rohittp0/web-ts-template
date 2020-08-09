@@ -1,4 +1,4 @@
 declare interface Window 
 {
-    __WB_MANIFEST: string[]
+    __WB_MANIFEST: string[];
 }
