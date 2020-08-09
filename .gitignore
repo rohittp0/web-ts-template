@@ -105,3 +105,5 @@ typings/
 # Compiled CSS and JS files
 dist/css/
 dist/js/
+dist/*.js
+dist/*.map

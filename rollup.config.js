@@ -9,13 +9,14 @@ import replace from '@rollup/plugin-replace';
 import workbox from 'rollup-plugin-workbox-inject';
 import glob from "glob";
 import path from "path";
-
-const SCRIPTS_FOLDER = "scripts";
-const SERVICE_WORKER_NAME = "service-worker.ts"
+import {
+	build_tree,
+	format
+} from "./config";
 
 console.log(`Building for ${process.env.NODE_ENV} environment`)
 
-const plugins = [
+const PLUGINS = [
 	resolve({
 		extensions: [".ts", ".js"],
 		browser: true
@@ -27,51 +28,73 @@ const plugins = [
 	typescript()
 ];
 
-if (process.env.NODE_ENV === "production") {
-	plugins.unshift(cleaner({
-		targets: ['dist/js']
-	}));
-	plugins.push(terser());
-}
+if (process.env.NODE_ENV === "production")
+	PLUGINS.push(terser());
 
+/**
+ * @param {string | any[]} arr
+ * @param {number} index
+ * @param {any} newItem
+ */
 const insert = (arr, index, newItem) => [...arr.slice(0, index), newItem, ...arr.slice(index)];
+const watch = {
+	exclude: 'node_modules/**'
+};
 
-function getConfig(root, dir) {
-	const plugins_sw = insert(plugins, plugins.indexOf(typescript()) + 1,
-		workbox({
-			globDirectory: dir,
-			globPatterns: ['../*']
-		}));
-	const input = glob.sync(`${path.join(root,SCRIPTS_FOLDER)}/*.ts`)
-	const input_sw = path.join(root, SERVICE_WORKER_NAME);
-
-	const watch = {
-		exclude: 'node_modules/**'
-	};
-
-	return [{
-			input,
-			output: {
-				dir,
-				format: "cjs",
-				sourcemap: "inline"
-			},
-			plugins,
-			watch
+/**
+ * @param {string} globDirectory
+ * @param {string[]} globPatterns
+ * @param {string} input
+ * @param {string} file
+ */
+function getSWConfig(globDirectory, globPatterns, input, file) {
+	const plugins = insert([cleaner({
+		targets: [file]
+	}), ...PLUGINS], PLUGINS.indexOf(typescript()) + 1, workbox({
+		globDirectory,
+		globPatterns
+	}));
+	return {
+		input,
+		output: {
+			file,
+			format,
+			sourcemap: "external"
 		},
-		{
-			input: input_sw,
-			output: {
-				dir,
-				format: "cjs",
-				sourcemap: "external"
-			},
-			plugins: plugins_sw,
-			watch
-		}
-	];
+		plugins,
+		watch
+	}
 }
 
-export default [
-	...getConfig("src", "dist/js")
-];
+/**
+ * @param {string} root
+ * @param {string} dir
+ */
+function getTSConfig(root, dir) {
+	const plugins = [cleaner({
+		targets: [dir]
+	}), ...PLUGINS];
+	const input = glob.sync(`${root}/*.ts`);
+
+	return {
+		input,
+		output: {
+			dir,
+			format,
+			sourcemap: "inline"
+		},
+		plugins,
+		watch
+	}
+}
+
+const exportArray = [];
+
+build_tree.forEach(entry => {
+	exportArray.push(getTSConfig(entry.src_ts, entry.dist_js));
+	exportArray.push(getSWConfig(entry.dist_root, entry.precache,
+		path.join(entry.src_root, `${entry.sw}.ts`),
+		path.join(entry.dist_root, `${entry.sw}.js`)))
+});
+
+export default exportArray;

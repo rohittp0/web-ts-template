@@ -2,7 +2,7 @@
   "name": "web-ts-template",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "",
   "scripts": {
     "test": "echo \"No test specified. Passing bliendly.\"",
     "build-ts": "rollup -c --environment NODE_ENV:production",
