@@ -1,34 +1,37 @@
+/* eslint-disable no-undef */
 import typescript from "rollup-plugin-typescript2";
 import workbox from "rollup-plugin-workbox-inject";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
-import {
-	build_tree,
-	format
-} from "./config";
-import {
-	terser
-} from "rollup-plugin-terser";
 import replace from "@rollup/plugin-replace";
 import cleaner from "rollup-plugin-cleaner";
 import glob from "glob";
 import path from "path";
+import {
+	build_tree,
+	format,
+	replace_values
+} from "./config";
+import {
+	terser
+} from "rollup-plugin-terser";
 
-console.log(`Building for ${process.env.NODE_ENV} environment`)
+const env = JSON.stringify(process.env.NODE_ENV || "production");
+replace_values["process.env.NODE_ENV"] = env;
+
+console.log(`Building for ${env} environment`);
 
 const PLUGINS = [
 	resolve({
 		extensions: [".ts", ".js"],
 		browser: true
 	}),
-	replace({
-		"process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "production")
-	}),
+	replace(replace_values),
 	commonjs(),
 	typescript()
 ];
 
-if (process.env.NODE_ENV === "production")
+if (env === JSON.stringify("production"))
 	PLUGINS.push(terser());
 
 /**
@@ -49,7 +52,7 @@ const watch = {
  */
 function getSWConfig(globDirectory, globPatterns, input, file) {
 	const plugins = insert([cleaner({
-		targets: [file]
+		targets: [file, `${file}.map`]
 	}), ...PLUGINS], PLUGINS.indexOf(typescript()) + 1, workbox({
 		globDirectory,
 		globPatterns
@@ -59,11 +62,11 @@ function getSWConfig(globDirectory, globPatterns, input, file) {
 		output: {
 			file,
 			format,
-			sourcemap: "external"
+			sourcemap: env !== JSON.stringify("production") ? "external" : null
 		},
 		plugins,
 		watch
-	}
+	};
 }
 
 /**
@@ -81,11 +84,11 @@ function getTSConfig(root, dir) {
 		output: {
 			dir,
 			format,
-			sourcemap: "inline"
+			sourcemap: env !== JSON.stringify("production") ? "inline" : null
 		},
 		plugins,
 		watch
-	}
+	};
 }
 
 const exportArray = [];
