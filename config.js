@@ -4,10 +4,12 @@ import {
 } from "./package.json";
 
 export const build_tree = [{
-	src_root: "src",
-	src_ts: "src/scripts",
-	dist_root: "dist",
-	dist_js: "dist/js",
+	src_root: "src/site-1",
+	src_ts: "src/site-1/scripts",
+	src_scss: "src/site-1/scss",
+	dist_root: "dist/site-1",
+	dist_js: "dist/site-1/js",
+	dist_css: "dist/site-1/css",
 	sw: "service-worker",
 	precache: ["index.html"]
 }];

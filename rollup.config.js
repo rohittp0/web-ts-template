@@ -1,10 +1,12 @@
 /* eslint-disable no-undef */
 import typescript from "rollup-plugin-typescript2";
 import workbox from "rollup-plugin-workbox-inject";
+import purgecss from "@fullhuman/postcss-purgecss";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from "@rollup/plugin-replace";
 import cleaner from "rollup-plugin-cleaner";
+import postcss from "rollup-plugin-postcss";
 import glob from "glob";
 import path from "path";
 import {
@@ -70,14 +72,14 @@ function getSWConfig(globDirectory, globPatterns, input, file) {
 }
 
 /**
- * @param {string} root
+ * @param {string} src
  * @param {string} dir
  */
-function getTSConfig(root, dir) {
+function getTSConfig(src, dir) {
 	const plugins = [cleaner({
 		targets: [dir]
 	}), ...PLUGINS];
-	const input = glob.sync(`${root}/*.ts`);
+	const input = glob.sync(`${src}/*.ts`);
 
 	return {
 		input,
@@ -91,12 +93,52 @@ function getTSConfig(root, dir) {
 	};
 }
 
+/**
+ * @param {string} src
+ * @param {string} dir
+ * @param {string} distRoot
+ */
+function getSCSSConfig(distRoot, src, dir) {
+	const content = [];
+	glob.sync(`${distRoot}/*.html`)
+		.forEach((file) => content.push(path.resolve(file)));
+
+	return {
+		input: glob.sync(`${src}/*.scss`),
+		output: {
+			dir,
+			format,
+			sourcemap: env !== JSON.stringify("production") ? "inline" : null
+		},
+		plugins: [
+			cleaner({
+				targets: [dir]
+			}),
+			postcss({
+				extract: true,
+				minimize: true,
+				extensions: ["scss", "css"],
+				sourceMap: env !== JSON.stringify("production") ? "inline" : false,
+				plugins: [
+					purgecss({
+						content,
+						keyframes: true,
+						fontFace: true
+					})
+				]
+			})
+		],
+		watch
+	};
+}
+
 const exportArray = [];
 
 build_tree.forEach(entry => exportArray.push(
 	getTSConfig(entry.src_ts, entry.dist_js),
 	getSWConfig(entry.dist_root, entry.precache,
 		path.join(entry.src_root, `${entry.sw}.ts`),
-		path.join(entry.dist_root, `${entry.sw}.js`))));
+		path.join(entry.dist_root, `${entry.sw}.js`)),
+	getSCSSConfig(entry.dist_root, entry.src_scss, entry.dist_css)));
 
 export default exportArray;
