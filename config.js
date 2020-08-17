@@ -10,6 +10,7 @@ export const build_tree = [{
 	dist_root: "dist/site-1",
 	dist_js: "dist/site-1/js",
 	dist_css: "dist/site-1/css",
+	dist_image: "dist/site-1/image",
 	sw: "service-worker",
 	precache: ["index.html"]
 }];
@@ -18,6 +19,8 @@ const replace_values_global = {
 	"__FALLBACK_HTML_URL__": "",
 	"__FALLBACK_IMAGE_URL__": "",
 	"__FALLBACK_FONT_URL__": "",
+	"__APP_NAME__": name,
+	"__APP_VERSION__": version
 };
 
 export const format = "cjs";
