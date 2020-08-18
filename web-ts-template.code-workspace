@@ -18,6 +18,13 @@
 			".jsbeautifyrc": true,
 			"firebase.json": true,
 			"firestore.indexes.json": true,
+			"tsconfig.json": true,
+			"package.json": true,
+			".eslintrc.json": true,
+			"rollup-plugins": true,
+			"dist": true,
+			"rollup.config.js": true
+
 		},
 		"beautify.config":
 		{

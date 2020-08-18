@@ -103,6 +103,4 @@ typings/
 .tern-port
 
 # Compiled CSS and JS files
-dist/**/*.js
-dist/**/*.map
-dist/**/*.css
+dist/

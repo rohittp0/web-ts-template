@@ -19,7 +19,7 @@ import
 from "./config.js";
 import
 {
-	terser
+	terser,
 }
 from "rollup-plugin-terser";
 import htmlPlugin from "./rollup-plugins/html-plugin.js";
@@ -30,18 +30,20 @@ replace_values["process.env.NODE_ENV"] = env;
 console.log(`Building for ${env} environment`);
 
 const PLUGINS = [
-	resolve(
+  resolve(
 	{
 		extensions: [".ts", ".js"],
-		browser: true
+		browser: true,
 	}),
-	replace(replace_values),
-	commonjs(),
-	typescript()
+  replace(replace_values),
+  commonjs(),
+  typescript(),
 ];
 
 if (env === JSON.stringify("production"))
+{
 	PLUGINS.push(terser());
+}
 
 /**
  * @param {string | any[]} arr
@@ -50,7 +52,7 @@ if (env === JSON.stringify("production"))
  */
 const insert = (arr, index, newItem) => [...arr.slice(0, index), newItem, ...arr.slice(index)];
 const watch = {
-	exclude: "node_modules/**"
+	exclude: "node_modules/**",
 };
 
 /**
@@ -64,7 +66,7 @@ function getSWConfig(globDirectory, globPatterns, input, file)
 	const plugins = insert(PLUGINS, PLUGINS.indexOf(typescript()) + 1, workbox(
 	{
 		globDirectory,
-		globPatterns
+		globPatterns,
 	}));
 	return {
 		input,
@@ -72,10 +74,10 @@ function getSWConfig(globDirectory, globPatterns, input, file)
 		{
 			file,
 			format,
-			sourcemap: env !== JSON.stringify("production") ? "external" : null
+			sourcemap: env !== JSON.stringify("production") ? "external" : null,
 		},
 		plugins,
-		watch
+		watch,
 	};
 }
 
@@ -91,10 +93,10 @@ function getTSConfig(src, dir)
 		{
 			dir,
 			format,
-			sourcemap: env !== JSON.stringify("production") ? "inline" : null
+			sourcemap: env !== JSON.stringify("production") ? "inline" : null,
 		},
 		plugins: PLUGINS,
-		watch
+		watch,
 	};
 }
 
@@ -114,66 +116,76 @@ function getSCSSConfig(distRoot, src, dir)
 		output:
 		{
 			dir,
-			format,
-			sourcemap: env !== JSON.stringify("production") ? "inline" : null
+			format: "amd",
+			sourcemap: env !== JSON.stringify("production") ? "inline" : null,
 		},
 		plugins: [
-			postcss(
+      postcss(
 			{
 				extract: true,
 				minimize: true,
 				extensions: ["scss", "css"],
 				sourceMap: env !== JSON.stringify("production") ? "inline" : false,
 				plugins: [
-					purgecss(
+              purgecss(
 					{
 						content,
 						keyframes: true,
-						fontFace: true
+						fontFace: true,
 					}),
-					copyAssets({ base: distRoot })
-				]
-			})
-		],
-		watch
+              copyAssets({ base: distRoot }),
+            ],
+			}),
+    ],
+		watch,
 	};
 }
 
+/**
+ * @param {string} src
+ * @param {string} dist
+ * @param {string} css
+ * @param {string} js
+ * @param {string} image
+ */
 function getHTMLConfig(src, dist, css, js, image)
 {
-
 	return {
 		input: glob.sync(`${src}/*.html`),
+		output:
+		{
+			dir: dist
+		},
 		plugins: [
-			copy(
+    copy(
 			{
 				targets: [
 					{
-						src: "src/common/*.*",
-						dest: dist
-				}]
+						src: "src/common/static/*",
+						dest: dist,
+                }],
 			}),
-			htmlPlugin(
+    htmlPlugin(
 			{
 				dist,
 				css,
 				js,
-				image
-			})
-		],
-		watch
+				image,
+			}),
+    ],
+		watch,
 	};
 }
 
 const exportArray = [];
 
-build_tree.forEach(entry => exportArray.push(
+build_tree.forEach((entry) => exportArray.push(
 	getTSConfig(entry.src_ts, entry.dist_js),
-	getSWConfig(entry.dist_root, entry.precache,
-		path.join(entry.src_root, `${entry.sw}.ts`),
-		path.join(entry.dist_root, `${entry.sw}.js`)),
 	getSCSSConfig(entry.dist_root, entry.src_scss, entry.dist_css),
 	getHTMLConfig(entry.src_root, entry.dist_root,
-		entry.dist_css, entry.dist_js, entry.dist_image)));
+		entry.dist_css, entry.dist_js, entry.dist_image),
+	getSWConfig(entry.dist_root, entry.precache,
+		path.join(entry.src_root, `${entry.sw}.ts`),
+		path.join(entry.dist_root, `${entry.sw}.js`))));
 
 export default exportArray;

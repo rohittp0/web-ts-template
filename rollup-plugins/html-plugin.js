@@ -2,25 +2,26 @@
 import path from "path";
 import fs from "fs";
 import cherio from "cheerio";
+import hash from "md5-file";
 
-export default function htmlPlugin(
+export default (
 {
 	dist,
 	css,
 	js,
-	image
-})
+	image,
+}) =>
 {
-
 	/**
 	 * @param {{ [x: string]: any; }} obj
 	 * @param {{ (file: any): any; (arg0: any): unknown; }} predicate
 	 */
 	const filter = (obj, predicate) => Object.keys(obj)
-		.filter(key => predicate(obj[key]))
+		.filter((key) => predicate(obj[key]))
 		.reduce((res, key) => (res.push(obj[key]), res), []);
 
 	const imgReg = /\.(a?png|bmp|gif|ico|cur|p?jpe?g|jfif|pjp|svg|tiff?|webp)$/i;
+	const webReg = /^https?:\/\//i;
 
 	/**
 	 * @param {string} url
@@ -28,11 +29,19 @@ export default function htmlPlugin(
 	 */
 	function copy(url, folder)
 	{
-		const dest = path.join(folder, path.basename(url));
-		if (fs.existsSync(url))
+		if (!fs.existsSync(url))
+		{
+			console.warn("\x1b[33m", `(!) Copy ${url} ➡️ ${folder} failed.\n`,
+				`\x1b[1m\x1b[4m${url}\x1b[0m\x1b[33m was not found.`, "\x1b[0m\n");
+			return url;
+		}
+
+		const dest = path.join(folder, `${hash.sync(url)}${path.extname(url)}`);
+
+		if (fs.existsSync(dest)) return dest;
+		else
 			fs.copyFileSync(url, dest);
-		else console.warn("\x1b[33m", `Copy ${url} ➡️ ${dest} failed.\n`,
-			`\x1b[1m\x1b[4m${url}\x1b[0m\x1b[33m was not found.`, "\x1b[0m\n");
+
 		return dest;
 	}
 
@@ -42,7 +51,7 @@ export default function htmlPlugin(
 	 */
 	function deleteByValue(object, val)
 	{
-		for (let obj in object)
+		for (const obj in object)
 			if (Object.prototype.hasOwnProperty.call(object, obj) && object[obj] === val)
 				delete object[obj];
 	}
@@ -52,6 +61,8 @@ export default function htmlPlugin(
 	 */
 	function resolveURL(url)
 	{
+		if (webReg.test(url))
+			return url;
 		if (url.endsWith(".ts"))
 			return path.join(js, path.basename(url).replace(".ts", ".js"));
 		if (url.endsWith(".scss"))
@@ -97,7 +108,17 @@ export default function htmlPlugin(
 			fs.mkdirSync(path.resolve(js), { recursive: true });
 			fs.mkdirSync(path.resolve(image), { recursive: true });
 
-			return await Promise.all(filter(bundle, (file) => file.facadeModuleId.endsWith(".html"))
+			return await Promise.all(
+				/**
+				 * @param {{ facadeModuleId: string; }} file
+				 */
+				/**
+				 * @param {{ facadeModuleId: string; }} file
+				 */
+				/**
+				 * @param {{ facadeModuleId: string; }} file
+				 */
+				filter(bundle, (file) => file.facadeModuleId.endsWith(".html"))
 				.map((html) => new Promise((resolve) =>
 				{
 					deleteByValue(bundle, html);
@@ -105,9 +126,9 @@ export default function htmlPlugin(
 					const $ = cherio.load(code);
 
 					new Set([...$("link").map((_, e) => e.attribs.href).get(),
-						...$("script").map((_, e) => e.attribs.src).get(),
-						...$("img").map((_, e) => e.attribs.src).get(),
-						...$("a").map((_, e) => e.attribs.href).get()])
+                  ...$("script").map((_, e) => e.attribs.src).get(),
+                  ...$("img").map((_, e) => e.attribs.src).get(),
+                  ...$("a").map((_, e) => e.attribs.href).get()])
 						.forEach((url) =>
 						{
 							code = code.split(url)
@@ -117,8 +138,8 @@ export default function htmlPlugin(
 					fs.writeFileSync(path.resolve(path.join(dist,
 						path.basename(html.facadeModuleId))), code);
 					resolve();
-				}))
+				})),
 			);
-		}
+		},
 	};
-}
+};

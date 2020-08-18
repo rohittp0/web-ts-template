@@ -5,9 +5,10 @@
 	"main": "",
 	"type": "module",
 	"scripts": {
-		"test": "echo \"No test specified. Passing bliendly.\"",
+		"watch": "rollup -c --watch --environment NODE_ENV:development",
 		"build": "rm -rf dist && npm run test && rollup -c --environment NODE_ENV:production",
-		"watch": "rollup -c --watch --environment NODE_ENV:development"
+		"fix": "./node_modules/.bin/eslint src --fix",
+		"test": "./node_modules/.bin/eslint src"
 	},
 	"repository": {
 		"type": "git",
@@ -27,8 +28,10 @@
 		"@typescript-eslint/eslint-plugin": "^3.8.0",
 		"@typescript-eslint/parser": "^3.8.0",
 		"cheerio": "^1.0.0-rc.3",
-		"eslint": "^7.6.0",
+		"eslint": "^7.7.0",
+		"eslint-config-google": "^0.14.0",
 		"glob": "^7.1.6",
+		"md5-file": "^5.0.0",
 		"node-sass": "^4.14.1",
 		"postcss-copy-assets": "^0.3.1",
 		"rollup": "^2.23.0",
