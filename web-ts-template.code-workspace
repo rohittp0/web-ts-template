@@ -23,7 +23,8 @@
 			".eslintrc.json": true,
 			"rollup-plugins": true,
 			"dist": true,
-			"rollup.config.js": true
+			"rollup.config.js": true,
+			".vscode": true
 
 		},
 		"beautify.config":

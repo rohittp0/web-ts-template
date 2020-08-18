@@ -1,0 +1,50 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "./",
+			"group": "build",
+			"label": "Build",
+			"detail": "Build for production environment.",
+			"problemMatcher": []
+        },
+		{
+			"type": "npm",
+			"script": "watch",
+			"path": "./",
+			"group": "build",
+			"label": "Watch",
+			"detail": "Watch files for change.",
+			"problemMatcher": []
+        },
+		{
+			"type": "npm",
+			"script": "fix",
+			"path": "./",
+			"group": "build",
+			"label": "Fix Eslint",
+			"detail": "Fix auto fixable eslint errors.",
+			"problemMatcher": []
+        },
+		{
+			"type": "npm",
+			"script": "test",
+			"path": "./",
+			"group": "build",
+			"label": "Run Test",
+			"detail": "Run unit tests.",
+			"problemMatcher": [
+                "$eslint-compact",
+                "$tslint5"
+            ]
+        },
+		{
+			"label": "Start Firebase Emulators",
+			"type": "shell",
+			"command": "firebase emulators:start --import test-data",
+			"problemMatcher": []
+        }
+    ]
+}
