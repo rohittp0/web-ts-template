@@ -32,7 +32,7 @@
 		"eslint-config-google": "^0.14.0",
 		"glob": "^7.1.6",
 		"md5-file": "^5.0.0",
-		"node-sass": "^4.14.1",
+		"node-sass": "^7.0.0",
 		"postcss-copy-assets": "^0.3.1",
 		"rollup": "^2.23.0",
 		"rollup-plugin-copy": "^3.3.0",
